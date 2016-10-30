@@ -85,6 +85,7 @@ List_nodes_cos* Cosine_input(FILE *fd,int* final_size, int * item){
     float * array;
     char bla[12];
     char c;
+    c='t';
     array=malloc(tempsize*sizeof(float));
     fscanf(fd, "%s",bla);
     items++;
@@ -105,7 +106,6 @@ List_nodes_cos* Cosine_input(FILE *fd,int* final_size, int * item){
     tempnod->point.array=array;
     tempnod->next=listn;
     listn=tempnod;
-    printf("array's size is %d\n", size);
     int i;
     while(!feof(fd)){
     	fscanf(fd, "%s", bla);
@@ -129,7 +129,6 @@ List_nodes_cos* Cosine_input(FILE *fd,int* final_size, int * item){
     *final_size=size;
 	*item=items;
 	printf("File Read with success\n");
-	fclose(fd);
 	return listn;
 }
 
@@ -164,7 +163,7 @@ void init_hash_cos(List_pointers_cos ****hashtable,cos_vec *randvec,int size,int
 	//	printf("%s,%d\n",pointer->point.name,pointer->point.pos);
 		for(i=0;i<L;i++){
 			bucket=G_cosine(G_h,i, pointer->point, size,k,randvec);
-			if(i==3 && bucket==2) printf("Item %s G%d, to bucket %d\n",pointer->point.name,i,bucket);
+		//	if(i==3 && bucket==2) printf("Item %s G%d, to bucket %d\n",pointer->point.name,i,bucket);
 			List_pointers_cos *temptr;
 			temptr=malloc(sizeof(List_pointers_cos));
 			temptr->nodeptr=&(pointer->point);
@@ -172,11 +171,6 @@ void init_hash_cos(List_pointers_cos ****hashtable,cos_vec *randvec,int size,int
 			(*hashtable)[bucket][i]=temptr;
 		}
 		pointer=pointer->next;
-	}
-	List_pointers_cos *go=(*hashtable)[2][3];
-	while(go!=NULL){
-		printf("%s, %f->",go->nodeptr->name,go->nodeptr->array[0]);
-		go=go->next;
 	}
 	printf("Data stored in hashtables\n");
 }
@@ -277,8 +271,49 @@ void search_cosine(List_pointers_cos ***hashtables,FILE *input,List_nodes_cos *l
 		fflush(output);
 		fprintf(output,"Nearest neighbor: %s\nDistanceLSH: %f\n",neighbor->nodeptr->name,max_distance);
 		fprintf(output,"DistanceTrue: %f\ntLSH: %f\ntTrue:%f\n",max_distance1,time_spent,time_spent1);
+		free(point.array);
 	
 	}
+	printf("File written successfully\n");
+}
+
+void free_hash_cos(List_pointers_cos  ****hashtable, int hashsize,int L){
+	int i,j;
+	List_pointers_cos *temp;
+	for(i=0;i<hashsize;i++){
+		for(j=0;j<L;j++){
+			temp=(*hashtable)[i][j];
+			while(temp!=NULL){
+				List_pointers_cos *temptemp;
+				temptemp=temp;
+				temp=temp->next;
+				free(temptemp);
+			}
+		}
+		free((*hashtable)[i]);
+	}
+	free(*hashtable);
+	(*hashtable)=NULL;
+}
+
+void free_list_nodes_cos(List_nodes_cos **listn, int size){
+	List_nodes_cos *templist;
+	int i;
+	while((*listn)!=NULL){
+		templist=(*listn);
+		(*listn)=(*listn)->next;
+		free(templist->point.array);
+		free(templist);
+	}
+}
+
+void free_randvec_cos(cos_vec **randvec, int L, int k){
+	int i;
+	for(i=0;i<L*k;i++){
+		free((*randvec)[i].vector);
+	}
+	free(*randvec);
+	(*randvec)=NULL;
 }
 
 

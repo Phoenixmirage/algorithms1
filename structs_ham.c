@@ -99,9 +99,7 @@ List_nodes_Ham* Hamming_input(FILE *fd,int* final_size, int * item){
     *final_size=size;
 	*item=items;
 	printf("File Read with success\n");
-	fclose(fd);
 	return listn;
-    fclose(fd);
 }
 
 void init_hash_Ham(List_pointers_Ham ****hashtable,int size,int k,int L,int hashsize,List_nodes_Ham *listn,int **G_h){
@@ -236,6 +234,36 @@ void search_Ham(List_pointers_Ham ***hashtables,FILE *input,List_nodes_Ham *list
 		fprintf(output,"Nearest neighbor: %s\nDistanceLSH: %d\n",neighbor->nodeptr->name,max_distance);
 		fprintf(output,"DistanceTrue: %d\ntLSH: %f\ntTrue:%f\n",max_distance1,time_spent,time_spent1);
 	
+	}
+	printf("File written successfully\n");
+}
+
+void free_hash_ham(List_pointers_Ham  ****hashtable, int hashsize,int L){
+	int i,j;
+	List_pointers_Ham *temp;
+	for(i=0;i<hashsize;i++){
+		for(j=0;j<L;j++){
+			temp=(*hashtable)[i][j];
+			while(temp!=NULL){
+				List_pointers_Ham *temptemp;
+				temptemp=temp;
+				temp=temp->next;
+				free(temptemp);
+			}
+		}
+		free((*hashtable)[i]);
+	}
+	free(*hashtable);
+	(*hashtable)=NULL;
+}
+
+void free_list_nodes_ham(List_nodes_Ham **listn, int size){
+	List_nodes_Ham *templist;
+	int i;
+	while((*listn)!=NULL){
+		templist=(*listn);
+		(*listn)=(*listn)->next;
+		free(templist);
 	}
 }
 

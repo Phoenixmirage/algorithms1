@@ -1,10 +1,7 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #ifndef STRUCTS2_H
 
 #define STRUCTS2_H
-
+#include <stdio.h>
 typedef struct Node_Ham Node_Ham;
 typedef struct List_nodes_Ham List_nodes_Ham;
 typedef struct List_pointers_Ham List_pointers_Ham;

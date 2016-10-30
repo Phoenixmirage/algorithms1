@@ -39,13 +39,16 @@ int main(int argc, char** argv){
 		else if(!strcmp(argv[i], "-L")){
 			L=atoi(argv[i+1]);
 		}
-		else printf("Wrong arguments\n");
+		else{
+			printf("Wrong arguments\n");
+			return 0;
+		}
 	}
 	if(flagd==1){
 		printf("Give input file: ");
 		scanf("%s", inputstr);
 	}
-//printf("onoma eisodou %s\nonoma anazitisis %s\nonoma eksodou %s\nk= %d\nL= %d\n",inputstr,searchstr,outputstr,k,L);
+	printf("Number of hashtables: %d\nNumber of h for each hashtable: %d\n",L,k);
 	 if ((input = fopen(inputstr, "r")) == NULL){
      		printf("wrong file name\n");
      		return -1;
@@ -74,8 +77,9 @@ int main(int argc, char** argv){
         		random_r=malloc(k*sizeof(long int));
 				for(i=0;i<k;i++){
 					random_r[i]=(long int)rand();
-				}
+			}
 				init_hash(&hashtables,randvec,size,k,L,hashsize,listn,G_h,W,random_r);
+				fclose(input);
 				char answer[4];
         		printf("Want to make a search? (yes/no)\n");
         		scanf("%s",answer);
@@ -83,7 +87,7 @@ int main(int argc, char** argv){
         			if(flagq==1){
 						printf("Give search file: ");
 						scanf("%s", searchstr);
-					}	
+					}
 					if(flago==1){
 						printf("Give output file: ");
 						scanf("%s", outputstr);
@@ -96,15 +100,21 @@ int main(int argc, char** argv){
      					printf("wrong file name\n");
      					return -1;
 					}
+					printf("Writing to file...\n");
         			search_euclidean(hashtables,inputsearch,listn,k,L,size,W,randvec,random_r,hashsize,G_h,output);
+        			fclose(inputsearch);
+        			fclose(output);
         			flagq=1;
         			flago=1;
         			printf("Want to make a search? (yes/no)\n");
         			scanf("%s",answer);
         		}
-				
-				printf("number of items is %d\nnumber of d is %d\n",items,size);
-            	
+			free_randvec(&randvec,L,k);
+			free_hash(&hashtables,hashsize,L);
+			free_list_nodes(&listn,size);
+			freeG_h(&G_h,L);
+			free (random_r);
+			printf("number of items is %d\nnumber of d is %d\n",items,size);
             }
             else{
             	List_nodes_cos *listn;
@@ -117,6 +127,7 @@ int main(int argc, char** argv){
         		int hashsize=pow(2,k);
         		List_pointers_cos ***hashtables;
         		init_hash_cos(&hashtables,randvec,size,k,L,hashsize,listn,G_h);
+        		fclose(input);
 				char answer[4];
         		printf("Want to make a search? (yes/no)\n");
         		scanf("%s",answer);
@@ -124,7 +135,7 @@ int main(int argc, char** argv){
         			if(flagq==1){
 						printf("Give search file: ");
 						scanf("%s", searchstr);
-					}	
+					}
 					if(flago==1){
 						printf("Give output file: ");
 						scanf("%s", outputstr);
@@ -137,13 +148,20 @@ int main(int argc, char** argv){
      					printf("wrong file name\n");
      					return -1;
 					}
+					printf("Writing to file...\n");
         			search_cosine(hashtables,inputsearch,listn,k,L,size,randvec,hashsize,G_h,output);
         			flagq=1;
         			flago=1;
+        			fclose(inputsearch);
+        			fclose(output);
         			printf("Want to make a search? (yes/no)\n");
         			scanf("%s",answer);
         		}
-				
+		free_randvec_cos(&randvec,L,k);
+		free_hash_cos(&hashtables,hashsize,L);
+		free_list_nodes_cos(&listn,size);
+		freeG_h(&G_h,L);
+
             	printf("number of items is %d\nnumber of d is %d\n",items,size);
             }
     	}
@@ -156,6 +174,7 @@ int main(int argc, char** argv){
         	int hashsize=pow(2,k);
         	List_pointers_Ham ***hashtables;
         	init_hash_Ham(&hashtables,size,k,L,hashsize,listn,G_h);
+        	fclose(input);
         	char answer[4];
         	printf("Want to make a search? (yes/no)\n");
         	scanf("%s",answer);
@@ -176,13 +195,19 @@ int main(int argc, char** argv){
      					printf("wrong file name\n");
      					return -1;
 				}
+				printf("Writing to file...\n");
         		search_Ham(hashtables,inputsearch,listn,k,L,size,hashsize,G_h,output);
         		flagq=1;
         		flago=1;
+        		fclose(inputsearch);
+        		fclose(output);
         		printf("Want to make a search? (yes/no)\n");
         		scanf("%s",answer);
-        	}
-            printf("number of items is %d\nnumber of d is %d\n",items,size);		
+        	}	
+			free_hash_ham(&hashtables,hashsize,L);
+			free_list_nodes_ham(&listn,size);
+			freeG_h(&G_h,L);
+	
 		}	
 		else if(!strcmp(metric_space,"matrix")){
 			List_nodes_ma *listn;
