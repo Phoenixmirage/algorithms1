@@ -6,7 +6,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-
 struct euc_vec{
 	float *vector;
 	float t;
@@ -38,15 +37,10 @@ unsigned long int ID_euclidean(int **G_h, int no_G, Node p, int size, long int *
 	unsigned long int sum=0;
 	float t;
 	for(i=0;i<k;i++){
-	//	printf("hi is %d and first dimension of vector is %f\n",G_h[no_G][i], vectors[G_h[no_G][i]].vector[0]);
-	//	printf("random is %d\n",random_r[i]);
 		t= H_euclidean(vectors[G_h[no_G][i]],p,size,W);
-	//	printf("hi*p is %f\n",t);
 		t=t*random_r[i];
-	//	printf("hi*p*r is %f\n",t);
 		sum= sum+ t;
 	}
-//	printf("sum before mod M is %li\n",sum);
 	if(sum<0) sum=sum*(-1);
 		return sum%M;
 }
@@ -56,11 +50,9 @@ long int H_euclidean(euc_vec vector_t, Node p,int size,int W){
 	long int j;
 	float sum=0;
 	for(i=0; i<size; i++){
-	//	printf("%f * %f\n",vector_t.vector[i],p.array[i]);
 		sum=sum+ (vector_t.vector[i]*p.array[i]);
 	}
 	sum=(sum+vector_t.t)/W;
-//	printf("%f\n",sum);
 	j=sum;
 	return j;
 }
@@ -107,17 +99,14 @@ List_nodes* Euclidean_input(FILE *fd,int* final_size, int * item){
 		tempnod->point.visited=0;
 		tempnod->next=listn;
 		listn=tempnod;
-		printf("array's size is %d\n", size);
 		int i;
 		while(!feof(fd)){
 			fscanf(fd, "%s", bla);
-			items++;//	printf("%s",bla);
+			items++;
 			if (!strcmp(bla,"")){
 				items--;
 					break;
 			}
-				
-		//	printf("%s",bla);
 			tempnod=malloc(sizeof(List_nodes));
 			strcpy(tempnod->point.name,bla);
 			memset(bla, 0, sizeof(bla));
@@ -148,9 +137,6 @@ void init_randvec(euc_vec **randvec,int L, int k,int W,int size){
         	(*randvec)[i].vector[j]=marsaglia();
         }	
     }
-    /* for(i=0;i<L*k;i++){
-        printf("%f,%f\n",(*randvec)[i].vector[0], (*randvec)[i].t);
-    }*/
 }
 
 void init_hash(List_pointers ****hashtable,euc_vec *randvec,int size,int k,int L,int hashsize,List_nodes *listn,int **G_h,int W,long int *random_r){
@@ -162,34 +148,23 @@ void init_hash(List_pointers ****hashtable,euc_vec *randvec,int size,int k,int L
 			(*hashtable)[i][j]=NULL;
 		}
 	}
-//	printf("%d!\n",hashsize);
 	printf("Hashtables allocated\n");
 	List_nodes *pointer=listn;
 	int bucket;
 	long int g;
 	while(pointer!=NULL){
-		
-	//	printf("%s,%d\n",pointer->point.name,pointer->point.pos);
 		for(i=0;i<L;i++){
 			g=ID_euclidean(G_h,i, pointer->point, size,random_r,k,randvec,W);
 			bucket= F_Euclidean(g,hashsize);
-		//	if(i==3 && bucket==2) printf("Item %s G%d, to bucket %d\n",pointer->point.name,i,bucket);
 			List_pointers *temptr;
 			temptr=malloc(sizeof(List_pointers));
 			temptr->nodeptr=&(pointer->point);
 			temptr->id=g;
 			temptr->next=(*hashtable)[bucket][i];
 			(*hashtable)[bucket][i]=temptr;
-			
-	//	if(i==1 && bucket==0)	printf("Item %s with position %d in G%d in bucket %d\n",pointer->point.name,pointer->point.pos,i,bucket);
 		}
 		pointer=pointer->next;
 	}
-	List_pointers *go=(*hashtable)[2][3];
-	/*while(go!=NULL){
-		printf("%s, %f->",go->nodeptr->name,go->nodeptr->array[0]);
-		go=go->next;
-	}*/
 	printf("Data stored in hashtables\n");
 }
 
@@ -198,13 +173,11 @@ void search_euclidean(List_pointers ***hashtables,FILE *input,List_nodes *listn,
     	char radius[20];
 	int flag=0;
     	fscanf(input, "Radius: %s\n",radius);
-   	// printf("%s\n",radius);
     	double time_spent,time_spent1;
    	float Radius= atof(radius);
     float distance, max_distance=1000;
     List_pointers *neighbor;
     clock_t begin, begin1, end, end1;
- //   printf("%f\n",Radius);
     if (Radius==0) flag=1;
     char bloo[12];
     while(!feof(input)){
@@ -252,16 +225,13 @@ void search_euclidean(List_pointers ***hashtables,FILE *input,List_nodes *listn,
 		float max_distance1=1000;
 		begin1=clock();
        	while(pointer!=NULL){
-       			
-        		distance=euclidean_distance(point.array,pointer->point.array,size);
-        		if(distance<=max_distance1 && distance!=0){
-        			max_distance1=distance;
-        			
-        		}	
-        		pointer->point.visited=0;
-        		pointer=pointer->next;
-        		
-		}
+       		distance=euclidean_distance(point.array,pointer->point.array,size);
+        	if(distance<=max_distance1 && distance!=0){
+        		max_distance1=distance;
+        	}	
+        	pointer->point.visited=0;
+        	pointer=pointer->next;
+        }
 		end1=clock();
 		time_spent1 = (double)(end1 - begin1) / CLOCKS_PER_SEC;
 		fflush(output);
@@ -270,23 +240,23 @@ void search_euclidean(List_pointers ***hashtables,FILE *input,List_nodes *listn,
         	fflush(output);
         	fprintf(output,"R-nearest neighbours:\n");
         	for(i=0;i<L;i++){
-        	id=ID_euclidean(G_h,i, point, size,random_r,k,randvec,W);
-			bucket= F_Euclidean(id,hashsize);
-			List_pointers *go=hashtables[bucket][i];
-			while(go!=NULL){
-				if(id==go->id){
-					if(go->nodeptr->visited==0){
-						distance=euclidean_distance(point.array,go->nodeptr->array,size);
-						if(distance<=Radius){
-							fflush(output);
-							fprintf(output,"%s\n",go->nodeptr->name);
+				id=ID_euclidean(G_h,i, point, size,random_r,k,randvec,W);
+				bucket= F_Euclidean(id,hashsize);
+				List_pointers *go=hashtables[bucket][i];
+				while(go!=NULL){
+					if(id==go->id){
+						if(go->nodeptr->visited==0){
+							distance=euclidean_distance(point.array,go->nodeptr->array,size);
+							if(distance<=Radius){
+								fflush(output);
+								fprintf(output,"%s\n",go->nodeptr->name);
+							}
+							go->nodeptr->visited=1;
 						}
-						go->nodeptr->visited=1;
 					}
+					go=go->next;
 				}
-				go=go->next;
 			}
-		}
 		}
 		fflush(output);
 		fprintf(output,"Nearest neighbor: %s\nDistanceLSH: %f\n",neighbor->nodeptr->name,max_distance);

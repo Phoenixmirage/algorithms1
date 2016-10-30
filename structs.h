@@ -16,4 +16,6 @@ void init_randvec(euc_vec **randvec,int L, int k,int W,int size);
 void init_hash(List_pointers ****hashtable,euc_vec *randvec,int size,int k,int L,int hashsize,List_nodes *listn,int **G_h,int W,long int *random_r);
 void search_euclidean(List_pointers ***hashtables,FILE *input,List_nodes *listn,int k,int L,int size,int W,euc_vec *randvec,long int *random_r,int hashsize,int **G_h,FILE*output);
 void free_randvec(euc_vec **randvec, int L, int k);
+void free_list_nodes(List_nodes **listn, int size);
+void free_hash(List_pointers  ****hashtable, int hashsize,int L);
 #endif

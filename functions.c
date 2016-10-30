@@ -14,7 +14,6 @@ float marsaglia(){
 	y2 = M + ((float)rand() /((float)RAND_MAX + 1.0)) * (N-M+1);
 
 	while((pow(y1,2) + pow(y2,2))>=1){
-	//	printf("%d\n%d\n",y1,y2);
 		y1 = M + ((float)rand() /((float)RAND_MAX + 1.0)) * (N-M+1);
 		y2 = M + ((float)rand() /((float)RAND_MAX + 1.0)) * (N-M+1);
 	}
@@ -33,7 +32,6 @@ unsigned long long int string_to_int(char *string,int size){
 	for(i=size-1;i>=0;i--){
 		c=string[i];
 		sum=sum|((c - '0')*k);
-	//	printf("%d* %llu\n",(c-'0'),k);
 		k=k<<1;
 	}
 	return sum;
@@ -62,11 +60,19 @@ void initG_h(int ***G_h, int k, int L, int w, int size){
         	}
         }
 	}
-/*	for(i=0;i<L;i++){
-        for(j=0;j<k;j++){
-        		printf("%d ",(*G_h)[i][j]);
-        	}
-        printf("\n");
-        }*/
 }
+
+void freeG_h(int ***G_h,int L){
+	int i;
+	for(i=0;i<L;i++)
+		free((*G_h)[i]);
+	free(*G_h);
+}
+
+
+
+
+
+
+
 

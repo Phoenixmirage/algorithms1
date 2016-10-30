@@ -15,4 +15,6 @@ void init_randvector(cos_vec **randvec,int L, int k,int size);
 void init_hash_cos(List_pointers_cos ****hashtable,cos_vec *randvec,int size,int k,int L,int hashsize,List_nodes_cos *listn,int **G_h);
 void search_cosine(List_pointers_cos ***hashtables,FILE *input,List_nodes_cos *listn,int k,int L,int size,cos_vec *randvec,int hashsize,int **G_h,FILE *output);
 void free_randvec_cos(cos_vec **randvec, int L, int k);
+void free_hash_cos(List_pointers_cos  ****hashtable, int hashsize,int L);
+void free_list_nodes_cos(List_nodes_cos **listn, int size);
 #endif

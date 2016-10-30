@@ -31,31 +31,22 @@ long int G_cosine(int **G_h, int no_G, Node_cos p, int size, int k,cos_vec *vect
 	long int sum=0;
 	float t;
 	for(i=0;i<k;i++){
-	//	printf("hi is %d and first dimension of vector is %f\n",G_h[no_G][i], vectors[G_h[no_G][i]].vector[0]);
-	//	printf("random is %d\n",random_r[i]);
 		t= H_cosine(vectors[G_h[no_G][i]],p,size);
-	//	printf("hi*p is %f\n",t);
 		sum=sum+ t*pow(2,j);
-	//	printf("hi*p*r is %f\n",t);
 		j--;
 	}
-	//if(no_G==4 )printf("sum is %li\n",sum);
 	return sum;
 }
  int H_cosine(cos_vec vector_t, Node_cos p,int size){
 	int i;
 	float sum=0;
 	for(i=0; i<size; i++){
-	//	printf("%f * %f\n",vector_t.vector[i],p.array[i]);
 		sum=sum+ (vector_t.vector[i]*p.array[i]);
 	}
-	
 	if (sum>=0){
-	//	printf("1");
 		return 1;
 	}
 	else{
-	//	printf("0");
 		return 0;
 	}
 }
@@ -109,7 +100,7 @@ List_nodes_cos* Cosine_input(FILE *fd,int* final_size, int * item){
     int i;
     while(!feof(fd)){
     	fscanf(fd, "%s", bla);
-        items++;//	printf("%s",bla);
+        items++;
         if (!strcmp(bla,"")){
         	items--;
             break;
@@ -154,16 +145,13 @@ void init_hash_cos(List_pointers_cos ****hashtable,cos_vec *randvec,int size,int
 			(*hashtable)[i][j]=NULL;
 		}
 	}
-//	printf("%d!\n",hashsize);
 	printf("Hashtables allocated\n");
 	List_nodes_cos *pointer=listn;
 	long int bucket;
 	long int g;
 	while(pointer!=NULL){
-	//	printf("%s,%d\n",pointer->point.name,pointer->point.pos);
 		for(i=0;i<L;i++){
 			bucket=G_cosine(G_h,i, pointer->point, size,k,randvec);
-		//	if(i==3 && bucket==2) printf("Item %s G%d, to bucket %d\n",pointer->point.name,i,bucket);
 			List_pointers_cos *temptr;
 			temptr=malloc(sizeof(List_pointers_cos));
 			temptr->nodeptr=&(pointer->point);
@@ -179,13 +167,11 @@ void search_cosine(List_pointers_cos ***hashtables,FILE *input,List_nodes_cos *l
     char radius[20];
 	int flag=0;
     fscanf(input, "Radius: %s\n",radius);
-   // printf("%s\n",radius);
     double time_spent,time_spent1;
     float Radius= atof(radius);
     float distance, max_distance=2,max_distance1=2;
     List_pointers_cos *neighbor;
     clock_t begin, begin1, end, end1;
- //   printf("%f\n",Radius);
     if (Radius==0) flag=1;
     char bloo[12];
     while(!feof(input)){
@@ -202,27 +188,23 @@ void search_cosine(List_pointers_cos ***hashtables,FILE *input,List_nodes_cos *l
         }
         List_nodes_cos *pointer=listn;
         while(pointer!=NULL){
-       			
-        		pointer->point.visited=0;
+       			pointer->point.visited=0;
         		pointer=pointer->next;
-        		
-		}
+        }
         max_distance=2;
         begin=clock();
         for(i=0;i<L;i++){
         	bucket=bucket=G_cosine(G_h,i, point, size,k,randvec);
 			List_pointers_cos *go=hashtables[bucket][i];
 			while(go!=NULL){
-			
-					if(go->nodeptr->visited==0){
-						distance=cosine_distance(point.array,go->nodeptr->array,size);
-						if(distance<max_distance && distance!=0){
-							max_distance=distance;
-							neighbor=go;
-						}
-						go->nodeptr->visited=1;
+				if(go->nodeptr->visited==0){
+					distance=cosine_distance(point.array,go->nodeptr->array,size);
+					if(distance<max_distance && distance!=0){
+						max_distance=distance;
+						neighbor=go;
 					}
-				
+					go->nodeptr->visited=1;
+				}
 				go=go->next;
 			}
 		}
@@ -233,16 +215,14 @@ void search_cosine(List_pointers_cos ***hashtables,FILE *input,List_nodes_cos *l
 		max_distance1=2;
 		begin1=clock();
        	while(pointer!=NULL){
-       			
-        		distance=cosine_distance(point.array,pointer->point.array,size);
-        		if(distance<=max_distance1 && distance!=0){
-        			max_distance1=distance;
-					t_neighbor=pointer;
-        		}	
-        		pointer->point.visited=0;
-        		pointer=pointer->next;
-        		
-		}
+    		distance=cosine_distance(point.array,pointer->point.array,size);
+       		if(distance<=max_distance1 && distance!=0){
+       			max_distance1=distance;
+				t_neighbor=pointer;
+       		}	
+        	pointer->point.visited=0;
+			pointer=pointer->next;
+        }
 		end1=clock();
 		time_spent1 = (double)(end1 - begin1) / CLOCKS_PER_SEC;
 		fflush(output);
@@ -254,25 +234,22 @@ void search_cosine(List_pointers_cos ***hashtables,FILE *input,List_nodes_cos *l
         	bucket=bucket=G_cosine(G_h,i, point, size,k,randvec);
 			List_pointers_cos *go=hashtables[bucket][i];
 			while(go!=NULL){
-			
-					if(go->nodeptr->visited==0){
-						distance=cosine_distance(point.array,go->nodeptr->array,size);
+				if(go->nodeptr->visited==0){
+					distance=cosine_distance(point.array,go->nodeptr->array,size);
 						if(distance<=Radius){
 							fflush(output);
 							fprintf(output,"%s\n",go->nodeptr->name);
 						}
 						go->nodeptr->visited=1;
 					}
-				
-				go=go->next;
+					go=go->next;
+				}
 			}
-		}
 		}
 		fflush(output);
 		fprintf(output,"Nearest neighbor: %s\nDistanceLSH: %f\n",neighbor->nodeptr->name,max_distance);
 		fprintf(output,"DistanceTrue: %f\ntLSH: %f\ntTrue:%f\n",max_distance1,time_spent,time_spent1);
 		free(point.array);
-	
 	}
 	printf("File written successfully\n");
 }
@@ -315,5 +292,3 @@ void free_randvec_cos(cos_vec **randvec, int L, int k){
 	free(*randvec);
 	(*randvec)=NULL;
 }
-
-

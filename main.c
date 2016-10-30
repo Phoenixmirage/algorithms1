@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <time.h>
-#include <stdlib.h> //for rand max 
 #include <math.h>
 #include "structs.h"
 #include "structs_cos.h"
@@ -57,170 +56,122 @@ int main(int argc, char** argv){
     char metric[100];
     int **G_h;
     int size,j;
-    //malloc G_h
     fscanf(input, "@metric_space %s\n", metric_space);
-        if (!strcmp(metric_space, "vector")){
-            fscanf(input, "@metric %s\n", metric);
-           // printf("%s\n", metric);
-            if(!strcmp(metric,"euclidean")){
-            	printf("%s\n", metric);
-            	int size, items;
-				List_nodes *listn;
-				listn=Euclidean_input(input,&size, &items);
-				euc_vec *randvec;
-				init_randvec(&randvec,L,k,W,size);
-				int **G_h;
-        		initG_h(&G_h,k,L,1,size);
-        		int hashsize=items/8;
-        		List_pointers ***hashtables;
-        		long int *random_r;
-        		random_r=malloc(k*sizeof(long int));
-				for(i=0;i<k;i++){
-					random_r[i]=(long int)rand();
+    if (!strcmp(metric_space, "vector")){
+		fscanf(input, "@metric %s\n", metric);
+		if(!strcmp(metric,"euclidean")){
+			int size, items;
+			List_nodes *listn;
+			listn=Euclidean_input(input,&size, &items);
+			euc_vec *randvec;
+			init_randvec(&randvec,L,k,W,size);
+			int **G_h;
+			initG_h(&G_h,k,L,1,size);
+			int hashsize=items/8;
+			List_pointers ***hashtables;
+			long int *random_r;
+			random_r=malloc(k*sizeof(long int));
+			for(i=0;i<k;i++){
+				random_r[i]=(long int)rand();
 			}
-				init_hash(&hashtables,randvec,size,k,L,hashsize,listn,G_h,W,random_r);
-				fclose(input);
-				char answer[4];
-        		printf("Want to make a search? (yes/no)\n");
-        		scanf("%s",answer);
-        		while(!strcmp(answer,"yes")){
-        			if(flagq==1){
-						printf("Give search file: ");
-						scanf("%s", searchstr);
-					}
-					if(flago==1){
-						printf("Give output file: ");
-						scanf("%s", outputstr);
-					}
-        			if ((inputsearch = fopen(searchstr, "r")) == NULL){
-     					printf("wrong file name\n");
-     					return -1;
-					}
-					if ((output = fopen(outputstr, "w")) == NULL){
-     					printf("wrong file name\n");
-     					return -1;
-					}
-					printf("Writing to file...\n");
-        			search_euclidean(hashtables,inputsearch,listn,k,L,size,W,randvec,random_r,hashsize,G_h,output);
-        			fclose(inputsearch);
-        			fclose(output);
-        			flagq=1;
-        			flago=1;
-        			printf("Want to make a search? (yes/no)\n");
-        			scanf("%s",answer);
-        		}
+			init_hash(&hashtables,randvec,size,k,L,hashsize,listn,G_h,W,random_r);
+			fclose(input);
+			char answer[4];
+			printf("Want to make a search? (yes/no)\n");
+			scanf("%s",answer);
+			while(!strcmp(answer,"yes")){
+				if(flagq==1){
+					printf("Give search file: ");
+					scanf("%s", searchstr);
+				}
+				if(flago==1){
+					printf("Give output file: ");
+					scanf("%s", outputstr);
+				}
+				if ((inputsearch = fopen(searchstr, "r")) == NULL){
+					printf("wrong file name\n");
+					return -1;
+				}
+				if ((output = fopen(outputstr, "w")) == NULL){
+					printf("wrong file name\n");
+					return -1;
+				}
+				printf("Writing to file...\n");
+				search_euclidean(hashtables,inputsearch,listn,k,L,size,W,randvec,random_r,hashsize,G_h,output);
+				fclose(inputsearch);
+				fclose(output);
+				flagq=1;
+				flago=1;
+				printf("Want to make a search? (yes/no)\n");
+				scanf("%s",answer);
+			}
 			free_randvec(&randvec,L,k);
 			free_hash(&hashtables,hashsize,L);
 			free_list_nodes(&listn,size);
 			freeG_h(&G_h,L);
 			free (random_r);
-			printf("number of items is %d\nnumber of d is %d\n",items,size);
-            }
-            else{
-            	List_nodes_cos *listn;
-            	int size, items;
-            	listn=Cosine_input(input,&size,&items);
-            	cos_vec *randvec;
-            	init_randvector(&randvec,L,k,size);
-            	int **G_h;
-        		initG_h(&G_h,k,L,1,size);
-        		int hashsize=pow(2,k);
-        		List_pointers_cos ***hashtables;
-        		init_hash_cos(&hashtables,randvec,size,k,L,hashsize,listn,G_h);
-        		fclose(input);
-				char answer[4];
-        		printf("Want to make a search? (yes/no)\n");
-        		scanf("%s",answer);
-        		while(!strcmp(answer,"yes")){
-        			if(flagq==1){
-						printf("Give search file: ");
-						scanf("%s", searchstr);
-					}
-					if(flago==1){
-						printf("Give output file: ");
-						scanf("%s", outputstr);
-					}
-        			if ((inputsearch = fopen(searchstr, "r")) == NULL){
-     					printf("wrong file name\n");
-     					return -1;
-					}
-					if ((output = fopen(outputstr, "w")) == NULL){
-     					printf("wrong file name\n");
-     					return -1;
-					}
-					printf("Writing to file...\n");
-        			search_cosine(hashtables,inputsearch,listn,k,L,size,randvec,hashsize,G_h,output);
-        			flagq=1;
-        			flago=1;
-        			fclose(inputsearch);
-        			fclose(output);
-        			printf("Want to make a search? (yes/no)\n");
-        			scanf("%s",answer);
-        		}
-		free_randvec_cos(&randvec,L,k);
-		free_hash_cos(&hashtables,hashsize,L);
-		free_list_nodes_cos(&listn,size);
-		freeG_h(&G_h,L);
-
-            	printf("number of items is %d\nnumber of d is %d\n",items,size);
-            }
-    	}
-		else if(!strcmp(metric_space,"hamming")){
-			List_nodes_Ham *listn;
-            int size, items;
-            listn=Hamming_input(input,&size,&items);
-            int **G_h;
-        	initG_h(&G_h,k,L,0,size);
-        	int hashsize=pow(2,k);
-        	List_pointers_Ham ***hashtables;
-        	init_hash_Ham(&hashtables,size,k,L,hashsize,listn,G_h);
-        	fclose(input);
-        	char answer[4];
-        	printf("Want to make a search? (yes/no)\n");
-        	scanf("%s",answer);
-        	while(!strcmp(answer,"yes")){
-        		if(flagq==1){
-						printf("Give search file: ");
-						scanf("%s", searchstr);
-				}	
+		}
+		else{
+			List_nodes_cos *listn;
+			int size, items;
+			listn=Cosine_input(input,&size,&items);
+			cos_vec *randvec;
+			init_randvector(&randvec,L,k,size);
+			int **G_h;
+			initG_h(&G_h,k,L,1,size);
+			int hashsize=pow(2,k);
+			List_pointers_cos ***hashtables;
+			init_hash_cos(&hashtables,randvec,size,k,L,hashsize,listn,G_h);
+			fclose(input);
+			char answer[4];
+			printf("Want to make a search? (yes/no)\n");
+			scanf("%s",answer);
+			while(!strcmp(answer,"yes")){
+				if(flagq==1){
+					printf("Give search file: ");
+					scanf("%s", searchstr);
+				}
 				if(flago==1){
 					printf("Give output file: ");
 					scanf("%s", outputstr);
 				}
-        		if ((inputsearch = fopen(searchstr, "r")) == NULL){
-     					printf("wrong file name\n");
-     					return -1;
+				if ((inputsearch = fopen(searchstr, "r")) == NULL){
+					printf("wrong file name\n");
+					return -1;
 				}
 				if ((output = fopen(outputstr, "w")) == NULL){
-     					printf("wrong file name\n");
-     					return -1;
+					printf("wrong file name\n");
+					return -1;
 				}
 				printf("Writing to file...\n");
-        		search_Ham(hashtables,inputsearch,listn,k,L,size,hashsize,G_h,output);
-        		flagq=1;
-        		flago=1;
-        		fclose(inputsearch);
-        		fclose(output);
-        		printf("Want to make a search? (yes/no)\n");
-        		scanf("%s",answer);
-        	}	
-			free_hash_ham(&hashtables,hashsize,L);
-			free_list_nodes_ham(&listn,size);
+				search_cosine(hashtables,inputsearch,listn,k,L,size,randvec,hashsize,G_h,output);
+				flagq=1;
+				flago=1;
+				fclose(inputsearch);
+				fclose(output);
+				printf("Want to make a search? (yes/no)\n");
+				scanf("%s",answer);
+			}
+			free_randvec_cos(&randvec,L,k);
+			free_hash_cos(&hashtables,hashsize,L);
+			free_list_nodes_cos(&listn,size);
 			freeG_h(&G_h,L);
-	
-		}	
-		else if(!strcmp(metric_space,"matrix")){
-			List_nodes_ma *listn;
-			int items,size;
-        	int **matrix_array;
-        	int **G_h;
-        	initG_h(&G_h,k,L,1,size);
-        	Dist_points *rand_x;
-        	listn=matrix_input(input,&size,&items,&matrix_array);
-        	rand_x1_x2(matrix_array,&rand_x,L,k,items);
-        	int hashsize=pow(2,k);
-        	List_pointers_ma ***hashtables;
-        	init_hash_ma(&hashtables,matrix_array,rand_x,size,k,L,hashsize,listn,G_h);
+		}
+    }
+	else if(!strcmp(metric_space,"hamming")){
+		List_nodes_Ham *listn;
+		int size, items;
+		listn=Hamming_input(input,&size,&items);
+		int **G_h;
+        initG_h(&G_h,k,L,0,size);
+        int hashsize=pow(2,k);
+        List_pointers_Ham ***hashtables;
+        init_hash_Ham(&hashtables,size,k,L,hashsize,listn,G_h);
+        fclose(input);
+        char answer[4];
+        printf("Want to make a search? (yes/no)\n");
+        scanf("%s",answer);
+        while(!strcmp(answer,"yes")){
         	if(flagq==1){
 				printf("Give search file: ");
 				scanf("%s", searchstr);
@@ -229,6 +180,73 @@ int main(int argc, char** argv){
 				printf("Give output file: ");
 				scanf("%s", outputstr);
 			}
+        	if ((inputsearch = fopen(searchstr, "r")) == NULL){
+     			printf("wrong file name\n");
+     			return -1;
+			}
+			if ((output = fopen(outputstr, "w")) == NULL){
+     			printf("wrong file name\n");
+     			return -1;
+			}
+			printf("Writing to file...\n");
+        	search_Ham(hashtables,inputsearch,listn,k,L,size,hashsize,G_h,output);
+        	flagq=1;
+        	flago=1;
+        	fclose(inputsearch);
+        	fclose(output);
+        	printf("Want to make a search? (yes/no)\n");
+        	scanf("%s",answer);
+        }	
+		free_hash_ham(&hashtables,hashsize,L);
+		free_list_nodes_ham(&listn,size);
+		freeG_h(&G_h,L);
+	}	
+	else if(!strcmp(metric_space,"matrix")){
+		List_nodes_ma *listn;
+		int items,size;
+        int **matrix_array;
+        int **G_h;
+        initG_h(&G_h,k,L,1,size);
+        Dist_points *rand_x;
+        listn=matrix_input(input,&size,&items,&matrix_array);
+        rand_x1_x2(matrix_array,&rand_x,L,k,items);
+        int hashsize=pow(2,k);
+        List_pointers_ma ***hashtables;
+        init_hash_ma(&hashtables,matrix_array,rand_x,size,k,L,hashsize,listn,G_h);
+        fclose(input);
+        char answer[4];
+        printf("Want to make a search? (yes/no)\n");
+        scanf("%s",answer);
+        while(!strcmp(answer,"yes")){
+        	if(flagq==1){
+				printf("Give search file: ");
+				scanf("%s", searchstr);
+			}	
+			if(flago==1){
+				printf("Give output file: ");
+				scanf("%s", outputstr);
+			}
+        	if ((inputsearch = fopen(searchstr, "r")) == NULL){
+     			printf("wrong file name\n");
+     			return -1;
+			}
+			if ((output = fopen(outputstr, "w")) == NULL){
+     			printf("wrong file name\n");
+     			return -1;
+			}
+			printf("Writing to file...\n");
+        	search_matrix(hashtables,matrix_array,rand_x,G_h,k,L,listn,inputsearch,output,size);
+       		flagq=1;
+        	flago=1;
+        	fclose(inputsearch);
+        	fclose(output);
+        	printf("Want to make a search? (yes/no)\n");
+        	scanf("%s",answer);
 		}
+		free_hash_ma(&hashtables,hashsize,L);
+		free_list_nodes_ma(&listn,size);
+		free_matrix_array(&matrix_array,size);
+		freeG_h(&G_h,L);
+		free(rand_x);
+	}
 }
-
