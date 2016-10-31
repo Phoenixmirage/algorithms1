@@ -7,18 +7,18 @@
 #include <stdlib.h>
 
 struct Node_Ham{
-	char name[12];
-	unsigned long long int binarystr;
+	char name[12];                      
+	unsigned long long int binarystr;    // binary string converted to unsigned long long int
 	int visited;
 };
 
 struct List_nodes_Ham{
-	Node_Ham point;
+	Node_Ham point;                       //list of nodes (each node represents an item)
 	List_nodes_Ham *next;
 };
 
 struct List_pointers_Ham{
-	Node_Ham *nodeptr;
+	Node_Ham *nodeptr;                   //list of pointers to nodes (each pointer points to a specific node)
 	List_pointers_Ham *next;
 };
 
@@ -36,9 +36,9 @@ long int G_hamming(int **G_h, int no_G, int number, int size, int k){
 
 int H_hamming(unsigned long long int number, int size, int pos){
 	int i;
-	unsigned long long int k=1,o;
-	k=k<<(size-pos);
-	o=number&k;
+	unsigned long long int k=1,o;      
+	k=k<<(size-pos);                 
+	o=number&k;                     //AND operator used to find if there is 1 or 0 in position
 	if(o==0) return 0;
 	else return 1;
 	
@@ -47,12 +47,12 @@ int H_hamming(unsigned long long int number, int size, int pos){
 int hamming_distance(unsigned long long int number1, unsigned long long int number2, int size){
 	int distance=0,i;
 	unsigned long long int a_xor, final=1;
-	a_xor=number1^number2;
+	a_xor=number1^number2;                       //XOR returns 0 if bits in a position are different and 1 if they aren't
 	for(i=0; i<size; i++){
-		if((a_xor&final)==0) distance++;
+		if((a_xor&final)==0) distance++;        //counting 0s to find the similarity
 		final=final<<1;
 	}
-	return size-distance;
+	return size-distance;                       //distance is size-similarity
 }
 
 List_nodes_Ham* Hamming_input(FILE *fd,int* final_size, int * item){
@@ -79,12 +79,12 @@ List_nodes_Ham* Hamming_input(FILE *fd,int* final_size, int * item){
         items++;
         if (!strcmp(bla,"")){
         	items--;
-            break;
+            break;                                                        
         }
         fscanf(fd,"%s\n",bin_string);
        	tempnode=malloc(sizeof(List_nodes_Ham));
     	tempnode->point.binarystr=string_to_int(bin_string,size);
-        tempnode->point.visited=0;
+        tempnode->point.visited=0;                                      //initialisation of list with items from dataset
         strcpy(tempnode->point.name,bla);
         memset(bla, 0, sizeof(bla));
 		tempnode->next=listn;
@@ -99,7 +99,7 @@ List_nodes_Ham* Hamming_input(FILE *fd,int* final_size, int * item){
 void init_hash_Ham(List_pointers_Ham ****hashtable,int size,int k,int L,int hashsize,List_nodes_Ham *listn,int **G_h){
 	int i,j;
 	*hashtable=malloc(sizeof(List_pointers_Ham **)*hashsize);
-	for(i=0;i<hashsize;i++){
+	for(i=0;i<hashsize;i++){                                         //initialisation of hashtables
 		(*hashtable)[i]=malloc(sizeof(List_pointers_Ham*)*L);
 			for(j=0;j<L;j++){
 			(*hashtable)[i][j]=NULL;
@@ -111,9 +111,9 @@ void init_hash_Ham(List_pointers_Ham ****hashtable,int size,int k,int L,int hash
 	long int g;
 	while(pointer!=NULL){
 		for(i=0;i<L;i++){
-			bucket=G_hamming(G_h,i, pointer->point.binarystr, size,k);
+			bucket=G_hamming(G_h,i, pointer->point.binarystr, size,k);        //G returns the bucket of the hashtable where the item must be stored
 			List_pointers_Ham *temptr;
-			temptr=malloc(sizeof(List_pointers_Ham));
+			temptr=malloc(sizeof(List_pointers_Ham));						//fill the list of bucket
 			temptr->nodeptr=&(pointer->point);
 			temptr->next=(*hashtable)[bucket][i];
 			(*hashtable)[bucket][i]=temptr;
@@ -160,7 +160,7 @@ void search_Ham(List_pointers_Ham ***hashtables,FILE *input,List_nodes_Ham *list
 			List_pointers_Ham *go=hashtables[bucket][i];
 			while(go!=NULL){
 					if(go->nodeptr->visited==0){
-						distance=hamming_distance(go->nodeptr->binarystr,number,size);
+						distance=hamming_distance(go->nodeptr->binarystr,number,size);          //search for nearest neighbour 
 						if(distance<max_distance && distance!=0){
 							
 							max_distance=distance;
@@ -177,7 +177,7 @@ void search_Ham(List_pointers_Ham ***hashtables,FILE *input,List_nodes_Ham *list
 		int max_distance1=64;
 		begin1=clock();
        	while(pointer!=NULL){
-       			distance=hamming_distance(pointer->point.binarystr,number,size);
+       			distance=hamming_distance(pointer->point.binarystr,number,size);     //all visited=0 and search for true NN at the same time
         		if(distance<max_distance1 && distance!=0){
         			max_distance1=distance;
         		}	
@@ -195,7 +195,7 @@ void search_Ham(List_pointers_Ham ***hashtables,FILE *input,List_nodes_Ham *list
         	for(i=0;i<L;i++){
         		bucket=G_hamming(G_h,i, number, size,k);
 				List_pointers_Ham *go=hashtables[bucket][i];
-				while(go!=NULL){
+				while(go!=NULL){                                                        //print neighbours in radius
 					if(go->nodeptr->visited==0){
 						distance=hamming_distance(go->nodeptr->binarystr,number,size);
 						if(distance<=Radius){

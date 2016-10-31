@@ -28,7 +28,7 @@ float marsaglia(){
 unsigned long long int string_to_int(char *string,int size){
 	int i;
 	unsigned long long int sum=0,k=1;
-	char c;
+	char c;                                     
 	for(i=size-1;i>=0;i--){
 		c=string[i];
 		sum=sum|((c - '0')*k);
@@ -45,7 +45,7 @@ void initG_h(int ***G_h, int k, int L, int w, int size){
     }
     int t=0;
 	if(w==1){
-    	for(i=0;i<L;i++){
+    	for(i=0;i<L;i++){                                      //for distancematrix and vectors each bucket of G_h represents a bucket from array of random vectors
     		for(j=0;j<k;j++){
         		(*G_h)[i][j]=t;
         		t++;
@@ -55,7 +55,7 @@ void initG_h(int ***G_h, int k, int L, int w, int size){
 	else{
 		for(i=0;i<L;i++){
         	for(j=0;j<k;j++){
-        		t=rand()%size+1;
+        		t=rand()%size+1;                                //for hamming each bucket is a random position of the binary string
 				(*G_h)[i][j]=t;
         	}
         }

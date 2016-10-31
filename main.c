@@ -9,14 +9,14 @@
 #include "structs_ham.h"
 #include "structs_ma.h"
 #include "functions.h"
-#define W 300
+#define W 4
 int main(int argc, char** argv){
 	srand(time(NULL));
 	FILE *input, *inputsearch, *output;
 	int flagd=1, flagq=1, flago=1,k=4, L=5,i;
 	if (argc%2==0 || argc>11){
 		printf("something is wrong with the arguments\n");
-		return;
+		return 0;
 	}
 	char inputstr[50], searchstr[50], outputstr[50];
 	for(i=1; i<=argc-2; i=i+2){
@@ -54,27 +54,26 @@ int main(int argc, char** argv){
 		}
 	char metric_space[100];
     char metric[100];
-    int **G_h;
+    int **G_h;  	//2d array that holds h functions for each G
     int size,j;
     fscanf(input, "@metric_space %s\n", metric_space);
     if (!strcmp(metric_space, "vector")){
 		fscanf(input, "@metric %s\n", metric);
 		if(!strcmp(metric,"euclidean")){
 			int size, items;
-			List_nodes *listn;
-			listn=Euclidean_input(input,&size, &items);
-			euc_vec *randvec;
-			init_randvec(&randvec,L,k,W,size);
-			int **G_h;
-			initG_h(&G_h,k,L,1,size);
-			int hashsize=items/8;
-			List_pointers ***hashtables;
-			long int *random_r;
+			List_nodes *listn;       //list of elements read from file
+			listn=Euclidean_input(input,&size, &items); //store elements from file in list
+			euc_vec *randvec;             // random vectors
+			init_randvec(&randvec,L,k,W,size);   
+			initG_h(&G_h,k,L,1,size);  
+			int hashsize=items/8;       
+			List_pointers ***hashtables;   
+			long int *random_r;    //1d array with random r
 			random_r=malloc(k*sizeof(long int));
 			for(i=0;i<k;i++){
 				random_r[i]=(long int)rand();
 			}
-			init_hash(&hashtables,randvec,size,k,L,hashsize,listn,G_h,W,random_r);
+			init_hash(&hashtables,randvec,size,k,L,hashsize,listn,G_h,W,random_r); //store itmes from list to hashtables with euclidean method
 			fclose(input);
 			char answer[4];
 			printf("Want to make a search? (yes/no)\n");
@@ -97,7 +96,7 @@ int main(int argc, char** argv){
 					return -1;
 				}
 				printf("Writing to file...\n");
-				search_euclidean(hashtables,inputsearch,listn,k,L,size,W,randvec,random_r,hashsize,G_h,output);
+				search_euclidean(hashtables,inputsearch,listn,k,L,size,W,randvec,random_r,hashsize,G_h,output); //search for NN and neighbours in radius
 				fclose(inputsearch);
 				fclose(output);
 				flagq=1;
@@ -111,7 +110,7 @@ int main(int argc, char** argv){
 			freeG_h(&G_h,L);
 			free (random_r);
 		}
-		else{
+		else{                                                  //vector, not euclidean but cosine
 			List_nodes_cos *listn;
 			int size, items;
 			listn=Cosine_input(input,&size,&items);
@@ -207,7 +206,7 @@ int main(int argc, char** argv){
         int **matrix_array;
         int **G_h;
         initG_h(&G_h,k,L,1,size);
-        Dist_points *rand_x;
+        Dist_points *rand_x;       //array of struct with x1, x2 random variables from matrix and median t1
         listn=matrix_input(input,&size,&items,&matrix_array);
         rand_x1_x2(matrix_array,&rand_x,L,k,items);
         int hashsize=pow(2,k);

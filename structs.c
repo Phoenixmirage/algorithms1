@@ -7,24 +7,24 @@
 #include <stdlib.h>
 
 struct euc_vec{
-	float *vector;
+	float *vector;     //array of random coordinates
 	float t;
 };
 
 struct Node{
 	char name[12];
-	int visited;
-	float* array;
+	int visited;										
+	float* array;     //array of coordinates of item 
 };
 
 struct List_nodes{
-	Node point;
+	Node point;               //list of nodes (each node represents an item)
 	List_nodes *next;
 };
 
 struct List_pointers{
-	long int id;
-	Node *nodeptr;
+	long int id;					//we use ID to avoid unnecessary computations 
+	Node *nodeptr;                 //list of pointers to nodes (each pointer points to a specific node)
 	List_pointers *next;
 };
 
@@ -37,12 +37,12 @@ unsigned long int ID_euclidean(int **G_h, int no_G, Node p, int size, long int *
 	unsigned long int sum=0;
 	float t;
 	for(i=0;i<k;i++){
-		t= H_euclidean(vectors[G_h[no_G][i]],p,size,W);
+		t= H_euclidean(vectors[G_h[no_G][i]],p,size,W);    
 		t=t*random_r[i];
 		sum= sum+ t;
 	}
 	if(sum<0) sum=sum*(-1);
-		return sum%M;
+		return sum%M;                              
 }
 
 long int H_euclidean(euc_vec vector_t, Node p,int size,int W){
@@ -50,7 +50,7 @@ long int H_euclidean(euc_vec vector_t, Node p,int size,int W){
 	long int j;
 	float sum=0;
 	for(i=0; i<size; i++){
-		sum=sum+ (vector_t.vector[i]*p.array[i]);
+		sum=sum+ (vector_t.vector[i]*p.array[i]);               //inner product
 	}
 	sum=(sum+vector_t.t)/W;
 	j=sum;
@@ -62,7 +62,7 @@ float euclidean_distance(float *point, float *item, int size){
 	float sum=0,square;
 	for(i=0; i<size; i++){
 		square= point[i]-item[i];
-		square=pow(square,2);
+		square=pow(square,2);                                     //(xi-yi)^2 for each coordinate
 		sum=sum + square;
 	}
 	sum=sqrt(sum);
@@ -84,8 +84,8 @@ List_nodes* Euclidean_input(FILE *fd,int* final_size, int * item){
 		while(c!='\n')
 		{
 				fscanf(fd, "%f%c", &(array[size]), &c);
-				size++;
-				if (size==tempsize-1){
+				size++;                                                         //finds the dimension of vector
+				if (size==tempsize-1){                                           
 						tempsize*=2;
 						array=realloc(array, tempsize*sizeof(float));
 				}
@@ -111,7 +111,7 @@ List_nodes* Euclidean_input(FILE *fd,int* final_size, int * item){
 			strcpy(tempnod->point.name,bla);
 			memset(bla, 0, sizeof(bla));
 			tempnod->point.array=malloc(size*sizeof(float));
-			tempnod->point.visited=0;
+			tempnod->point.visited=0;                                                    //fill list of items
 			for(i=0;i<size;i++)
 			{
 					fscanf(fd, "%f", &(tempnod->point.array[i]));
@@ -134,7 +134,7 @@ void init_randvec(euc_vec **randvec,int L, int k,int W,int size){
     for(i=0;i<L*k;i++){
         (*randvec)[i].t=((float)rand()/(float)(RAND_MAX)*W);
         for(j=0;j<size;j++){
-        	(*randvec)[i].vector[j]=marsaglia();
+        	(*randvec)[i].vector[j]=marsaglia();                               //initialise array of rand vectors using gaussian distribution
         }	
     }
 }
@@ -154,8 +154,8 @@ void init_hash(List_pointers ****hashtable,euc_vec *randvec,int size,int k,int L
 	long int g;
 	while(pointer!=NULL){
 		for(i=0;i<L;i++){
-			g=ID_euclidean(G_h,i, pointer->point, size,random_r,k,randvec,W);
-			bucket= F_Euclidean(g,hashsize);
+			g=ID_euclidean(G_h,i, pointer->point, size,random_r,k,randvec,W);  
+			bucket= F_Euclidean(g,hashsize);                                    //F returns the bucket of the hashtable where the item must be stored
 			List_pointers *temptr;
 			temptr=malloc(sizeof(List_pointers));
 			temptr->nodeptr=&(pointer->point);
@@ -206,7 +206,7 @@ void search_euclidean(List_pointers ***hashtables,FILE *input,List_nodes *listn,
 			bucket= F_Euclidean(id,hashsize);
 			List_pointers *go=hashtables[bucket][i];
 			while(go!=NULL){
-				if(id==go->id){
+				if(id==go->id){                                                                    //search for nearest neighbour 
 					if(go->nodeptr->visited==0){
 						distance=euclidean_distance(point.array,go->nodeptr->array,size);
 						if(distance<max_distance && distance!=0){
@@ -226,7 +226,7 @@ void search_euclidean(List_pointers ***hashtables,FILE *input,List_nodes *listn,
 		begin1=clock();
        	while(pointer!=NULL){
        		distance=euclidean_distance(point.array,pointer->point.array,size);
-        	if(distance<=max_distance1 && distance!=0){
+        	if(distance<=max_distance1 && distance!=0){                        //all visited=0 and search for true NN at the same time
         		max_distance1=distance;
         	}	
         	pointer->point.visited=0;
@@ -246,7 +246,7 @@ void search_euclidean(List_pointers ***hashtables,FILE *input,List_nodes *listn,
 				while(go!=NULL){
 					if(id==go->id){
 						if(go->nodeptr->visited==0){
-							distance=euclidean_distance(point.array,go->nodeptr->array,size);
+							distance=euclidean_distance(point.array,go->nodeptr->array,size); //print neighbours in radius
 							if(distance<=Radius){
 								fflush(output);
 								fprintf(output,"%s\n",go->nodeptr->name);

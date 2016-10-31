@@ -15,5 +15,6 @@ int H_matrix(int **array,Dist_points rand_x,Node_ma point);
 void free_matrix_array(int ***array,int size);
 void free_list_nodes_ma(List_nodes_ma **listn, int size);
 void free_hash_ma(List_pointers_ma  ****hashtable, int hashsize,int L);
+void search_matrix(List_pointers_ma ***hashtable, int **array, Dist_points *rand_x, int **G_h, int k, int L, List_nodes_ma *listn,FILE *input,FILE *output,int size);
 #endif
 

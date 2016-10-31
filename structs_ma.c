@@ -7,24 +7,24 @@
 #include <math.h>
 
 struct Node_ma{
-	char name[12];
-	int *array;
-	int pos;
-	int visited;
+	char name[12]; //name of item
+	int *array;    // array of distances from all other items
+	int pos;		//position in DistanceMatrix
+	int visited;	//checks if node is visited to avoid duplicates
 };
 
-struct List_nodes_ma{
-	Node_ma point;
+struct List_nodes_ma{        
+	Node_ma point;           //list of nodes (each node represents an item)
 	List_nodes_ma *next;
 };
 
 struct List_pointers_ma{
-	Node_ma *nodeptr;
+	Node_ma *nodeptr;         //list of pointers to nodes (each pointer points to a specific node)
 	List_pointers_ma *next;
 };
 
 struct Dist_points{
-	int x1;
+	int x1;                        
 	int x2;
 	float t1;
 };
@@ -35,22 +35,22 @@ List_nodes_ma* matrix_input(FILE *fd,int* final_size, int * item,int ***array){
     int size=0;
     char bla[12];
     char c;
-    c='t';
+    c='t';        
     fscanf(fd, "%s ",bla);
-	while(c!='\n')
+	while(c!='\n')     //if c is character of new line it means that first line of file is over
     {
     	fscanf(fd, "%[^,\n]%c", bla,&c);
         items++;
-	   	List_nodes_ma *tempnod;
+	   	List_nodes_ma *tempnod;                     //construct list filling only the name and the position of each item                
     	tempnod=malloc(sizeof(List_nodes_ma));
-    	strcpy(tempnod->point.name,bla);
+    	strcpy(tempnod->point.name,bla);              
     	memset(bla, 0, sizeof(bla));
     	tempnod->point.pos=items-1;
-	tempnod->point.visited=0;
+    	tempnod->point.visited=0;
     	tempnod->next=listn;
     	listn=tempnod;
 	}
-	*array = malloc( sizeof(int *) * items);
+	*array = malloc( sizeof(int *) * items);           //initialisation of array of DistanceMatrix
 	 if (*array == NULL){
         printf("ERROR: out of memory\n");
     }
@@ -63,7 +63,7 @@ List_nodes_ma* matrix_input(FILE *fd,int* final_size, int * item,int ***array){
     	for(j=0;j<items;j++)
         {
         	fscanf(fd, "%s", d);
-        	if (!strcmp(d,"")) break;
+        	if (!strcmp(d,"")) break;              //fill Distance matrix from dataset
         	(*array)[i][j]=atoi(d);
         }
     }
@@ -71,7 +71,7 @@ List_nodes_ma* matrix_input(FILE *fd,int* final_size, int * item,int ***array){
     while(pointer!=NULL){
     	pointer->point.array=malloc(items*sizeof(int));
 		for(i=0;i<items;i++){	
-			pointer->point.array[i]=(*array)[pointer->point.pos][i];
+			pointer->point.array[i]=(*array)[pointer->point.pos][i];     //fill the array of each node in list
 		}
     	pointer=pointer->next;
     }
@@ -82,26 +82,26 @@ List_nodes_ma* matrix_input(FILE *fd,int* final_size, int * item,int ***array){
 }
 
 void rand_x1_x2(int **array,Dist_points **rand_x, int L, int k, int size){
-	(*rand_x)=malloc(sizeof(Dist_points)*L*k);
+	(*rand_x)=malloc(sizeof(Dist_points)*L*k);                      
 	int i,j;
 	for(i=0;i<L*k;i++){
-		(*rand_x)[i].x1=rand()%size;
+		(*rand_x)[i].x1=rand()%size;				
 		do{
 			(*rand_x)[i].x2=rand()%size;
-		}while( (*rand_x)[i].x1==(*rand_x)[i].x2);
+		}while( (*rand_x)[i].x1==(*rand_x)[i].x2); //x1 and x2 must be different to avoid division by 0
 	}
 	int d1,d2,d3,d4;
 	float sum;
 	for(i=0;i<L*k;i++){
 		sum=0;
 		for(j=0;j<size;j++){
-			d1=pow(array[j][(*rand_x)[i].x1],2);
+			d1=pow(array[j][(*rand_x)[i].x1],2);       //(d(x,x1)^2 + d(x,x2)^2 -d(x1,x2)^2)/2d(x1,x2)   
 			d2=pow(array[j][(*rand_x)[i].x2],2);
 			d3=array[(*rand_x)[i].x1][(*rand_x)[i].x2];
-			d4=((d1+d2-pow(d3,2))/(2*d3));
+			d4=((d1+d2-pow(d3,2))/(2*d3));               
 		    sum=sum + d4;
 		}
-		(*rand_x)[i].t1=sum/size;
+		(*rand_x)[i].t1=sum/size;             //t1 median        
 	}
 }
 
@@ -121,9 +121,9 @@ void init_hash_ma(List_pointers_ma ****hashtable,int **array,Dist_points *rand_x
 	long int bucket;
 	while(pointer!=NULL){
 		for(i=0;i<L;i++){
-			bucket=G_matrix(array,rand_x, pointer->point, G_h,k,i);
+			bucket=G_matrix(array,rand_x, pointer->point, G_h,k,i);          //G returns the bucket of the hashtable where the item must be stored
 			List_pointers_ma *temptr;
-			temptr=malloc(sizeof(List_pointers_ma));
+			temptr=malloc(sizeof(List_pointers_ma));                        
 			temptr->nodeptr=&(pointer->point);
 			temptr->next=(*hashtable)[bucket][i];
 			(*hashtable)[bucket][i]=temptr;
@@ -135,7 +135,7 @@ void init_hash_ma(List_pointers_ma ****hashtable,int **array,Dist_points *rand_x
 
 int H_matrix(int **array,Dist_points rand_x,Node_ma point){
 	float d1,d2,d3,d4,sum=0;
-	d1=pow(point.array[rand_x.x1],2);
+	d1=pow(point.array[rand_x.x1],2);          
 	d2=pow(point.array[rand_x.x2],2);
 	d3=array[rand_x.x1][rand_x.x2];
 	sum=((d1+d2-pow(d3,2))/(2*d3));
@@ -159,7 +159,7 @@ void search_matrix(List_pointers_ma ***hashtable, int **array, Dist_points *rand
 	int flag=0,distance,max_distance,i,position;
 	float Radius;
 	fscanf(input, "Radius: %f\n",&Radius);
-	if (Radius==0) flag=1;
+	if (Radius==0) flag=1;                     //flag=1 means we don't search for neighbours in R
 	double time_spent,time_spent1;
 	clock_t begin, begin1, end, end1;
 	char bloo[12];
@@ -173,7 +173,6 @@ void search_matrix(List_pointers_ma ***hashtable, int **array, Dist_points *rand
 		if (!strcmp(bloo,"")){
            		 break;	
 		}
-		max_distance=0;
 		for(i=0;i<size;i++){
 			fscanf(input,"%d",&point.array[i]);
 		}
@@ -183,9 +182,9 @@ void search_matrix(List_pointers_ma ***hashtable, int **array, Dist_points *rand
        			pointer->point.visited=0;
         		pointer=pointer->next; 		
 		}
-		begin=clock();
+		begin=clock();                                                           //search for nearest neighbour 
 		for(i=0;i<L;i++){
-			bucket=G_matrix(array,rand_x, point, G_h,k,i);
+			bucket=G_matrix(array,rand_x, point, G_h,k,i);                          
 			List_pointers_ma *go=hashtable[bucket][i];
 			while(go!=NULL){
 				if(go->nodeptr->visited==0){
@@ -205,7 +204,7 @@ void search_matrix(List_pointers_ma ***hashtable, int **array, Dist_points *rand
 		begin1=clock();
 		pointer=listn;
        	while(pointer!=NULL){
-       		distance=point.array[pointer->point.pos];
+       		distance=point.array[pointer->point.pos];                      //all visited=0 and search for true NN at the same time
 			if(distance<max_distance1 && distance!=0){
 				max_distance1=distance;
 			}
@@ -219,7 +218,7 @@ void search_matrix(List_pointers_ma ***hashtable, int **array, Dist_points *rand
         if (flag==0){
         	fflush(output);
         	fprintf(output,"R-nearest neighbours:\n");
-			for(i=0;i<L;i++){
+			for(i=0;i<L;i++){                                                    //print neighbours in radius
 				bucket=G_matrix(array,rand_x, point, G_h,k,i);
 				List_pointers_ma *go=hashtable[bucket][i];
 				while(go!=NULL){

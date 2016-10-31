@@ -6,22 +6,22 @@
 #include <string.h>
 #include <stdlib.h>
 struct cos_vec{
-	float *vector;
+	float *vector;               //array of random coordinates
 };
 
 struct Node_cos{
 	char name[12];
 	int visited;
-	float* array;
+	float* array;            //array of coordinates of item 
 };
 
 struct List_nodes_cos{
-	Node_cos point;
+	Node_cos point;        //list of nodes (each node represents an item)
 	List_nodes_cos *next;
 };
 
 struct List_pointers_cos{
-	Node_cos *nodeptr;
+	Node_cos *nodeptr;               //list of pointers to nodes (each pointer points to a specific node)
 	List_pointers_cos *next;
 };
 
@@ -41,7 +41,7 @@ long int G_cosine(int **G_h, int no_G, Node_cos p, int size, int k,cos_vec *vect
 	int i;
 	float sum=0;
 	for(i=0; i<size; i++){
-		sum=sum+ (vector_t.vector[i]*p.array[i]);
+		sum=sum+ (vector_t.vector[i]*p.array[i]);                       // inner product of random vector and item p
 	}
 	if (sum>=0){
 		return 1;
@@ -56,7 +56,7 @@ float cosine_distance(float *point, float *item, int size){
 	float sum=0,square,meterA=0,meterB=0;
 	for(i=0; i<size; i++){
 		if(point[i]==item[i]) j++;
-		meterA= meterA + pow(point[i],2);
+		meterA= meterA + pow(point[i],2);                                // cosine of p and q
 		meterB= meterB + pow(item[i],2);
 		sum=sum + point[i]*item[i];
 	}
@@ -84,7 +84,7 @@ List_nodes_cos* Cosine_input(FILE *fd,int* final_size, int * item){
     {
     	fscanf(fd, "%f%c", &(array[size]), &c);
         size++;
-        if (size==tempsize-1){
+        if (size==tempsize-1){                            //finds the dimension of vector
             tempsize*=2;
             array=realloc(array, tempsize*sizeof(float));
         }
@@ -108,7 +108,7 @@ List_nodes_cos* Cosine_input(FILE *fd,int* final_size, int * item){
        				
        	tempnod=malloc(sizeof(List_nodes_cos));
        	strcpy(tempnod->point.name,bla);
-       	memset(bla, 0, sizeof(bla));
+       	memset(bla, 0, sizeof(bla));                              //fill list of items
        	tempnod->point.array=malloc(size*sizeof(float));
        	for(i=0;i<size;i++)
         {
@@ -131,7 +131,7 @@ void init_randvector(cos_vec **randvec,int L, int k,int size){
     }
     for(i=0;i<L*k;i++){
         for(j=0;j<size;j++){
-        	(*randvec)[i].vector[j]=marsaglia();
+        	(*randvec)[i].vector[j]=marsaglia();         //initialise array of rand vectors using gaussian distribution
         }	
     }
 
@@ -151,7 +151,7 @@ void init_hash_cos(List_pointers_cos ****hashtable,cos_vec *randvec,int size,int
 	long int g;
 	while(pointer!=NULL){
 		for(i=0;i<L;i++){
-			bucket=G_cosine(G_h,i, pointer->point, size,k,randvec);
+			bucket=G_cosine(G_h,i, pointer->point, size,k,randvec);      //G returns the bucket of the hashtable where the item must be stored
 			List_pointers_cos *temptr;
 			temptr=malloc(sizeof(List_pointers_cos));
 			temptr->nodeptr=&(pointer->point);
@@ -198,7 +198,7 @@ void search_cosine(List_pointers_cos ***hashtables,FILE *input,List_nodes_cos *l
 			List_pointers_cos *go=hashtables[bucket][i];
 			while(go!=NULL){
 				if(go->nodeptr->visited==0){
-					distance=cosine_distance(point.array,go->nodeptr->array,size);
+					distance=cosine_distance(point.array,go->nodeptr->array,size);   //search for nearest neighbour 
 					if(distance<max_distance && distance!=0){
 						max_distance=distance;
 						neighbor=go;
@@ -216,7 +216,7 @@ void search_cosine(List_pointers_cos ***hashtables,FILE *input,List_nodes_cos *l
 		begin1=clock();
        	while(pointer!=NULL){
     		distance=cosine_distance(point.array,pointer->point.array,size);
-       		if(distance<=max_distance1 && distance!=0){
+       		if(distance<=max_distance1 && distance!=0){                         //all visited=0 and search for true NN at the same time
        			max_distance1=distance;
 				t_neighbor=pointer;
        		}	
@@ -235,7 +235,7 @@ void search_cosine(List_pointers_cos ***hashtables,FILE *input,List_nodes_cos *l
 			List_pointers_cos *go=hashtables[bucket][i];
 			while(go!=NULL){
 				if(go->nodeptr->visited==0){
-					distance=cosine_distance(point.array,go->nodeptr->array,size);
+					distance=cosine_distance(point.array,go->nodeptr->array,size);     //print neighbours in radius
 						if(distance<=Radius){
 							fflush(output);
 							fprintf(output,"%s\n",go->nodeptr->name);
