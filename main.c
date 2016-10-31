@@ -9,7 +9,7 @@
 #include "structs_ham.h"
 #include "structs_ma.h"
 #include "functions.h"
-#define W 4
+#define W 300
 int main(int argc, char** argv){
 	srand(time(NULL));
 	FILE *input, *inputsearch, *output;
@@ -63,6 +63,10 @@ int main(int argc, char** argv){
 			int size, items;
 			List_nodes *listn;       //list of elements read from file
 			listn=Euclidean_input(input,&size, &items); //store elements from file in list
+			if(k>(log(items)/log(2))){
+				k=(log(items)/log(2))-1;
+				printf("k is to big, k is going to be %d\n",k);
+			}
 			euc_vec *randvec;             // random vectors
 			init_randvec(&randvec,L,k,W,size);   
 			initG_h(&G_h,k,L,1,size);  
@@ -114,6 +118,10 @@ int main(int argc, char** argv){
 			List_nodes_cos *listn;
 			int size, items;
 			listn=Cosine_input(input,&size,&items);
+			if(k>(log(items)/log(2))){
+				k=(log(items)/log(2))-1;
+				printf("k is to big, k is going to be %d\n",k);
+			}
 			cos_vec *randvec;
 			init_randvector(&randvec,L,k,size);
 			int **G_h;
@@ -161,6 +169,10 @@ int main(int argc, char** argv){
 		List_nodes_Ham *listn;
 		int size, items;
 		listn=Hamming_input(input,&size,&items);
+		if(k>(log(items)/log(2))){
+			k=(log(items)/log(2))-1;
+			printf("k is to big, k is going to be %d\n",k);
+		}
 		int **G_h;
         initG_h(&G_h,k,L,0,size);
         int hashsize=pow(2,k);
@@ -204,10 +216,14 @@ int main(int argc, char** argv){
 		List_nodes_ma *listn;
 		int items,size;
         int **matrix_array;
+	listn=matrix_input(input,&size,&items,&matrix_array);
+	if(k>(log(items)/log(2))){
+				k=(log(items)/log(2))-1;
+				printf("k is to big, k is going to be %d\n",k);
+			}
         int **G_h;
         initG_h(&G_h,k,L,1,size);
         Dist_points *rand_x;       //array of struct with x1, x2 random variables from matrix and median t1
-        listn=matrix_input(input,&size,&items,&matrix_array);
         rand_x1_x2(matrix_array,&rand_x,L,k,items);
         int hashsize=pow(2,k);
         List_pointers_ma ***hashtables;

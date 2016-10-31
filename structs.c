@@ -42,6 +42,7 @@ unsigned long int ID_euclidean(int **G_h, int no_G, Node p, int size, long int *
 		sum= sum+ t;
 	}
 	if(sum<0) sum=sum*(-1);
+		
 		return sum%M;                              
 }
 
@@ -176,7 +177,7 @@ void search_euclidean(List_pointers ***hashtables,FILE *input,List_nodes *listn,
     	double time_spent,time_spent1;
    	float Radius= atof(radius);
     float distance, max_distance=1000;
-    List_pointers *neighbor;
+    List_pointers *neighbor=NULL;
     clock_t begin, begin1, end, end1;
     if (Radius==0) flag=1;
     char bloo[12];
